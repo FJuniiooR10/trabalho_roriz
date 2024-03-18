@@ -5,4 +5,5 @@ nltk==3.8.1
 numpy==1.26.4
 PyPDF2==3.0.1
 requests==2.31.0
+textblob==0.18.0.post0
 WordCloud==1.9.3
