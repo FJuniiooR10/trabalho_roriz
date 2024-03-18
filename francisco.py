@@ -8,15 +8,10 @@ from nltk.corpus import stopwords
 from collections import Counter
 import PyPDF2
 import docx2txt
-from textblob import TextBlob  # Adicionando TextBlob para análise de sentimentos
-from PIL import Image  # Para usar imagens na nuvem de palavras
 from io import BytesIO
-import numpy as np
 
-
-# Baixando recursos do NLTK
 nltk.download('stopwords')
-nltk.download('punkt') 
+nltk.download('punkt')  # Adicionando esta linha para baixar o tokenizador de sentenças
 
 def extract_text_from_pdf(file):
     buffer = BytesIO(file.read())
@@ -39,35 +34,23 @@ def get_text_from_web(url):
 
 def remove_stopwords(text):
     stop_words = set(stopwords.words('portuguese'))
-    words = text.lower().split()
+    words = text.lower().split()  # Tokenização utilizando split()
     filtered_words = [word for word in words if word.isalnum() and word not in stop_words]
     return filtered_words
 
 def generate_wordcloud(text):
     try:
-        # Carregando uma imagem de máscara para a nuvem de palavras
-        mask = np.array(Image.open("cloud_mask.png"))  
-        wordcloud = WordCloud(width=800, height=400, background_color='white', mask=mask).generate(text)
+        wordcloud = WordCloud(width=800, height=400, background_color='white').generate(text)
         fig, ax = plt.subplots(figsize=(10, 6))
         ax.imshow(wordcloud, interpolation='bilinear')
-        ax.axis('off')
+        ax.axis('off')  # Desativa os eixos
         st.pyplot(fig)
     except Exception as e:
         st.error(f"Erro ao gerar a nuvem de palavras: {e}")
 
-def analyze_sentiment(text):
-    blob = TextBlob(text)
-    sentiment_score = blob.sentiment.polarity
-    if sentiment_score > 0:
-        return "positivo"
-    elif sentiment_score < 0:
-        return "negativo"
-    else:
-        return "neutro"
-
 def main():
-    text = ''
-    st.title('Análise Estatística e de Sentimentos de Texto')
+    text = ''  # Definindo a variável text como vazio
+    st.title('Atividade 1 - Análise Estatística de Texto')
 
     input_option = st.radio('Selecione o tipo de entrada de dados:', ('PDF', 'Word', 'Link da Página', 'Texto Direto'))
 
@@ -90,20 +73,15 @@ def main():
         st.subheader('Texto Analisado:')
         st.write(text)
 
-        # Análise de sentimentos
-        sentiment = analyze_sentiment(text)
-        st.subheader('Análise de Sentimentos:')
-        st.write(f'O sentimento do texto é {sentiment}.')
-
         filtered_words = remove_stopwords(text)
         word_freq = Counter(filtered_words)
         most_common_words = word_freq.most_common(20)
 
-        st.subheader('As 20 Palavras que mais se repetem (exceto stopwords):')
+        st.subheader('Top 20 Palavras Mais Frequentes (exceto stopwords):')
         for word, freq in most_common_words:
             st.write(f'{word}: {freq}')
 
-        st.subheader('word cloud:')
+        st.subheader('Nuvem de Palavras:')
         generate_wordcloud(' '.join(filtered_words))
 
 if __name__ == "__main__":
